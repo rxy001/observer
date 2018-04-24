@@ -12,18 +12,29 @@
 
 </body>
 <script>
+  var b = {
+    d: 1
+  }
   var a = new V({
     data: {
       a: {
-        b: {
-          c: 1
-        }
-      }
+        b: b,
+        c: b
+      },
     },
     watch: {
-      'a.b': function (val, old){
-        console.log(val, old);
-      }
+      'a.b': {
+        handler: function a(val, old) {
+          console.log(val, old);
+        },
+        deep: true
+      },
+      'a.c': {
+        handler: function b(val, old) {
+          console.log(val, old);
+        },
+        deep: true
+      },
     }
   })
   console.log(a);

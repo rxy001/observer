@@ -8,6 +8,8 @@ function def(obj, prop, value, enumerable = false) {
 }
 
 const bailRE = /[^\w.$]/
+
+// 解析路径, 递归调用属性的getter
 function parsePath(path) {
   if (bailRE.test(path)) {
     return

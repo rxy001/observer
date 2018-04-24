@@ -13,11 +13,11 @@ import {
 
 const arrayMethdosKey = Object.getOwnPropertyNames(arrayMethods)
 
-export default class Observer {
+export class Observer {
   constructor(value) {
     this.value = value
     this.dep = new Dep()
-    // __ob__观察的是这个value发生变化，而非value的属性
+
     def(value, '__ob__', this)
     if (Array.isArray(value)) {
       const augment = hasProto ? protoAugment : copyAugment
@@ -40,9 +40,11 @@ export default class Observer {
   }
 }
 
-function defineReactive(obj, key) {
-  const dep = new Dep()
+export function defineReactive(obj, key, val) {
 
+  // dep和this.dep收集的依赖是相同的，方便在其他地方调用
+  // 但如果value是基础类型，则无法创建__ob__，因此没有__ob__.dep
+  const dep = new Dep()
   const descriptor = Object.getOwnPropertyDescriptor(obj, key)
   if (descriptor && descriptor.configurable === false) {
     return
@@ -50,7 +52,6 @@ function defineReactive(obj, key) {
   const getter = descriptor && descriptor.get
   const setter = descriptor && descriptor.set
 
-  let val
   // 如果getter存在 而且setter不存在，则无需监测其变化（即使对其赋值，也获取不到）
   if ((!getter || setter) && arguments.length === 2) {
     val = obj[key]
@@ -63,9 +64,11 @@ function defineReactive(obj, key) {
       const value = getter ? getter.call(obj) : val
       if (Dep.target) {
         dep.depend()
-        // 将watcher添加到data的子对象的ob.dep.subs中
         if (childOb) {
           childOb.dep.depend()
+          // if (Array.isArray(val)) {
+          //   dependArray(val)
+          // }
         }
       }
       return value
@@ -86,13 +89,23 @@ function defineReactive(obj, key) {
   })
 }
 
+function dependArray(arr) {
+  for (let i = 0; i < arr.length; i++) {
+    const e = arr[i]
+    e && e.__ob__ && e.__ob__.dep.depend()
+    if (Array.isArray(e)) {
+      dependArray(e)
+    }
+  }
+}
+
 function observer(val) {
   let ob
-  if (val.hasOwnProperty('__ob__') && value.__ob__ instanceof Observer) {
+  if (val.hasOwnProperty('__ob__') && val.__ob__ instanceof Observer) {
     ob = val.__ob__
   } else if (Array.isArray(val) || isPlainObject(val)) {
     ob = new Observer(val)
-  }
+  } 
   return ob
 }
 

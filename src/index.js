@@ -1,4 +1,4 @@
-import Observer from './observer'
+import { Observer, defineReactive} from './observer'
 import { Watcher } from './watcher'
 
 export default class V {

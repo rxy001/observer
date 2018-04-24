@@ -4,7 +4,6 @@ import { isObject, parsePath } from './util';
 
 export class Watcher {
   constructor(vm, expOrFn, cb, deep = false) {
-    debugger
     this.vm = vm
     this.cb = cb
     this.deep = deep
@@ -20,8 +19,12 @@ export class Watcher {
   get() {
     pushTarget(this)
     const vm = this.vm
+    
+    // 将当前的watcher依次添加到该属性及父辈对象的dep中
     let value = this.getter.call(vm, vm)
     if (this.deep) {
+
+      // 将当前的watcher依次添加该对象所有后代属性的dep
       traverse(value)
     }
     popTarget()
@@ -34,8 +37,8 @@ export class Watcher {
   }
   run() {
     const value = this.get()
-    // value !== this.value || isObject(value) || this.deep？？
-    
+
+    // value !== this.value || isObject(value) || this.deep ？？
     // 如果getter返回的为对象，value和this.value是相同的
     if (value !== this.value || isObject(value)) {
       const oldVal = this.value
